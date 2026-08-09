@@ -116,6 +116,7 @@ jobs:
           -Psigning.password="${{ secrets.SIGNING_PASSWORD }}"
           :onnxruntime-kmp:publishKotlinMultiplatformPublicationToMavenLocal
           :onnxruntime-kmp:publishJvmPublicationToMavenLocal
+          :onnxruntime-kmp:publishAndroidPublicationToMavenLocal
           :onnxruntime-kmp:publishLinuxX64PublicationToMavenLocal
           :onnxruntime-kmp:publishLinuxArm64PublicationToMavenLocal
           :onnxruntime-kmp:publishMingwX64PublicationToMavenLocal
