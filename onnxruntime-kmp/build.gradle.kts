@@ -150,43 +150,62 @@ fun registerNativeLibTasks(spec: NativeLibSpec) {
         }
     }
 
-    val extractTask = tasks.register<Exec>("extractNativeLib_$targetName") {
-        group = "onnxruntime"
-        description = "Extracts the onnxruntime $targetName package into native/${spec.key}."
-        dependsOn(downloadTask)
-        onlyIf {
-            !(marker.isFile && marker.readText().trim() == spec.version &&
-                File(libDir, "include").isDirectory && File(libDir, "lib").isDirectory)
+    val extractTask = if (spec.zip) {
+        // The Windows package is a plain zip without symlinks, so Gradle's
+        // zipTree is used (GNU tar on Linux cannot read zips).
+        tasks.register<Copy>("extractNativeLib_$targetName") {
+            group = "onnxruntime"
+            description = "Extracts the onnxruntime $targetName package into native/${spec.key}."
+            dependsOn(downloadTask)
+            onlyIf {
+                !(marker.isFile && marker.readText().trim() == spec.version &&
+                    File(libDir, "include").isDirectory && File(libDir, "lib").isDirectory)
+            }
+            from(zipTree(archive)) {
+                include("**/include/**", "**/lib/**")
+                exclude("**/*.pdb")
+                // Strip the top-level "onnxruntime-win-x64-<version>/" directory.
+                eachFile {
+                    relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+                }
+            }
+            into(libDir)
+            doLast {
+                marker.writeText(spec.version)
+            }
         }
-        doFirst { libDir.mkdirs() }
+    } else {
         // Use the system tar (bsdtar on macOS/Windows, GNU tar on Linux):
         // it preserves the versioned symlinks Gradle's archive trees mangle.
-        // The macOS packages carry a leading "./" component, the Linux and
-        // Windows ones do not, so probe the first entry for the strip count.
-        doFirst {
-            val stripComponents = if (spec.zip) 1 else {
-                val first = ProcessBuilder("tar", "-tzf", archive.absolutePath)
-                    .redirectErrorStream(true)
-                    .start()
-                    .inputStream.bufferedReader()
-                    .use { it.readLine() }
-                if (first.orEmpty().startsWith("./")) 2 else 1
+        // The macOS packages carry a leading "./" component, the Linux ones
+        // do not, so probe the first entry for the strip count.
+        tasks.register<Exec>("extractNativeLib_$targetName") {
+            group = "onnxruntime"
+            description = "Extracts the onnxruntime $targetName package into native/${spec.key}."
+            dependsOn(downloadTask)
+            onlyIf {
+                !(marker.isFile && marker.readText().trim() == spec.version &&
+                    File(libDir, "include").isDirectory && File(libDir, "lib").isDirectory)
             }
-            commandLine = when {
-                spec.zip -> listOf(
-                    "tar", "-xf", archive.absolutePath,
-                    "--strip-components=$stripComponents", "-C", libDir.absolutePath,
-                    "--exclude=*.pdb",
-                )
-                else -> listOf(
+            doFirst { libDir.mkdirs() }
+            doFirst {
+                val stripComponents = if (spec.zip) 1 else {
+                    val first = ProcessBuilder("tar", "-tzf", archive.absolutePath)
+                        .redirectErrorStream(true)
+                        .start()
+                        .inputStream.bufferedReader()
+                        .use { it.readLine() }
+                    if (first.orEmpty().startsWith("./")) 2 else 1
+                }
+                commandLine = listOf(
                     "tar", "-xzf", archive.absolutePath,
                     "--strip-components=$stripComponents", "-C", libDir.absolutePath,
                     "--exclude=*.pdb", "--exclude=*.dSYM",
                 )
             }
-        }
-        doLast {
-            marker.writeText(spec.version)
+            doLast {
+                marker.writeText(spec.version)
+            }
         }
     }
 }
@@ -214,11 +233,14 @@ nativeLibSpecs.values.forEach { registerNativeLibTasks(it) }
 
 fun onnxruntimeDefFile(targetName: String): File {
     val spec = nativeLibSpecs.getValue(targetName)
-    val libDir = nativeRoot.resolve(spec.key).resolve("lib")
-    val includeDir = nativeRoot.resolve(spec.key).resolve("include")
+    // Forward slashes everywhere: the .def file parser interprets backslash
+    // escapes (e.g. "C:\native" would break at "\n"), and clang/ld accept
+    // forward slashes on Windows too.
+    val libDir = nativeRoot.resolve(spec.key).resolve("lib").absolutePath.replace('\\', '/')
+    val includeDir = nativeRoot.resolve(spec.key).resolve("include").absolutePath.replace('\\', '/')
 
     val linkerOpts = mutableListOf(
-        "-L${libDir.absolutePath}",
+        "-L$libDir",
         "-lonnxruntime",
     )
     when (spec.targetName) {
@@ -232,7 +254,7 @@ fun onnxruntimeDefFile(targetName: String): File {
     file.writeText(
         buildString {
             appendLine("headers = onnxruntime_c_api.h")
-            appendLine("compilerOpts = -std=c11 -I${includeDir.absolutePath}")
+            appendLine("compilerOpts = -std=c11 -I$includeDir")
             appendLine("linkerOpts = ${linkerOpts.joinToString(" ")}")
         },
     )
