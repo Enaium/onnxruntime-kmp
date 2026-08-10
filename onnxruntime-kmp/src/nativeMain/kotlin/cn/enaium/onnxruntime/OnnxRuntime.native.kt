@@ -239,7 +239,7 @@ internal class NativeSession internal constructor(
         val inputValues = mutableListOf<CPointer<OrtValue>?>()
         try {
             for (i in inputNameList.indices) {
-                val value = inputs.getValue(inputNameList[i]).toOrtValue()
+                val value = inputs.getValue(inputNameList[i]).toOrtValue(this)
                 ortInputValues[i] = value
                 inputValues += value
             }

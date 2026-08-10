@@ -29,15 +29,16 @@ import kotlinx.cinterop.*
 import onnxruntime.*
 import platform.posix.*
 
-/** Wraps a shape array into an OrtValue backed by per-run scoped memory. */
+/** Wraps a shape array into an OrtValue backed by the caller's scoped memory. */
 private fun <T : CPointed> Tensor.wrapData(
+    scope: MemScope,
     dataPtr: CPointer<T>,
     elementSize: Int,
     type: ONNXTensorElementDataType,
-): CPointer<OrtValue>? = memScoped {
-    val shapePtr = allocArray<int64_tVar>(shape.size)
+): CPointer<OrtValue>? {
+    val shapePtr = scope.allocArray<int64_tVar>(shape.size)
     for (i in shape.indices) shapePtr[i] = shape[i]
-    val out = alloc<CPointerVar<OrtValue>>()
+    val out = scope.alloc<CPointerVar<OrtValue>>()
     Ort.api.CreateTensorWithDataAsOrtValue!!(
         Ort.cpuMemoryInfo,
         dataPtr,
@@ -47,57 +48,56 @@ private fun <T : CPointed> Tensor.wrapData(
         type,
         out.ptr,
     ).check()
-    out.value
+    return out.value
 }
 
 /**
  * Converts a common [Tensor] into an [OrtValue] whose data buffer lives in
- * the calling `memScoped` scope (safe: `OrtRun` is synchronous, the buffer
- * is only needed until it returns).
+ * [scope] (safe: `OrtRun` is synchronous, the buffer is only needed until it
+ * returns). The caller (e.g. `NativeSession.run`) must keep the scope alive
+ * for the whole run.
  */
-internal fun Tensor.toOrtValue(): CPointer<OrtValue>? = memScoped {
-    when (this@toOrtValue) {
-        is FloatTensor -> {
-            val dataPtr = allocArray<FloatVar>(data.size)
-            for (i in data.indices) dataPtr[i] = data[i]
-            wrapData(dataPtr, 4, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
-        }
+internal fun Tensor.toOrtValue(scope: MemScope): CPointer<OrtValue>? = when (this@toOrtValue) {
+    is FloatTensor -> {
+        val dataPtr = scope.allocArray<FloatVar>(data.size)
+        for (i in data.indices) dataPtr[i] = data[i]
+        wrapData(scope, dataPtr, 4, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
+    }
 
-        is DoubleTensor -> {
-            val dataPtr = allocArray<DoubleVar>(data.size)
-            for (i in data.indices) dataPtr[i] = data[i]
-            wrapData(dataPtr, 8, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)
-        }
+    is DoubleTensor -> {
+        val dataPtr = scope.allocArray<DoubleVar>(data.size)
+        for (i in data.indices) dataPtr[i] = data[i]
+        wrapData(scope, dataPtr, 8, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)
+    }
 
-        is LongTensor -> {
-            val dataPtr = allocArray<LongVar>(data.size)
-            for (i in data.indices) dataPtr[i] = data[i]
-            wrapData(dataPtr, 8, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64)
-        }
+    is LongTensor -> {
+        val dataPtr = scope.allocArray<LongVar>(data.size)
+        for (i in data.indices) dataPtr[i] = data[i]
+        wrapData(scope, dataPtr, 8, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64)
+    }
 
-        is IntTensor -> {
-            val dataPtr = allocArray<IntVar>(data.size)
-            for (i in data.indices) dataPtr[i] = data[i]
-            wrapData(dataPtr, 4, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32)
-        }
+    is IntTensor -> {
+        val dataPtr = scope.allocArray<IntVar>(data.size)
+        for (i in data.indices) dataPtr[i] = data[i]
+        wrapData(scope, dataPtr, 4, ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32)
+    }
 
-        is StringTensor -> {
-            val shapePtr = allocArray<int64_tVar>(shape.size)
-            for (i in shape.indices) shapePtr[i] = shape[i]
-            val out = alloc<CPointerVar<OrtValue>>()
-            Ort.api.CreateTensorAsOrtValue!!(
-                Ort.defaultAllocator,
-                shapePtr,
-                shape.size.toULong(),
-                ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING,
-                out.ptr,
-            ).check()
-            val value = out.value
-            val strings = allocArray<CPointerVar<ByteVar>>(data.size)
-            for (i in data.indices) strings[i] = data[i].cstr.getPointer(memScope)
-            Ort.api.FillStringTensor!!(value, strings, data.size.toULong()).check()
-            value
-        }
+    is StringTensor -> {
+        val shapePtr = scope.allocArray<int64_tVar>(shape.size)
+        for (i in shape.indices) shapePtr[i] = shape[i]
+        val out = scope.alloc<CPointerVar<OrtValue>>()
+        Ort.api.CreateTensorAsOrtValue!!(
+            Ort.defaultAllocator,
+            shapePtr,
+            shape.size.toULong(),
+            ONNXTensorElementDataType.ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING,
+            out.ptr,
+        ).check()
+        val value = out.value
+        val strings = scope.allocArray<CPointerVar<ByteVar>>(data.size)
+        for (i in data.indices) strings[i] = data[i].cstr.getPointer(scope)
+        Ort.api.FillStringTensor!!(value, strings, data.size.toULong()).check()
+        value
     }
 }
 
