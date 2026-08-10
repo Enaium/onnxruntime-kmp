@@ -13,21 +13,90 @@ A single common Kotlin API in front of the two official ONNX Runtime distributio
 | Linux x64 / arm64 | official prebuilt `libonnxruntime` 1.26.0, linked via cinterop |
 | Windows x64 | official prebuilt `onnxruntime.dll` 1.26.0, linked via cinterop |
 
-The Kotlin/Native klibs embed the link configuration (library path + `@loader_path` /
-`$ORIGIN` rpath). Since a dynamic library cannot be embedded into a klib, the
-shared libraries are also published as standalone per-platform artifacts:
+The Kotlin/Native klibs embed the link configuration (`@loader_path` / `$ORIGIN`
+rpath). Since a dynamic library cannot be embedded into a klib, the shared
+libraries are published as standalone per-platform artifacts
+(`onnxruntime-lib-<platform>`); see [Installation](#installation).
 
-| Artifact | Contents |
-| --- | --- |
-| `onnxruntime-lib-macosarm64` | `libonnxruntime.1.26.0.dylib` + `libonnxruntime.1.dylib` |
-| `onnxruntime-lib-macosx64` | `libonnxruntime.1.23.2.dylib` |
-| `onnxruntime-lib-linuxx64` / `onnxruntime-lib-linuxarm64` | `libonnxruntime.so.1.26.0` + `libonnxruntime.so.1` |
-| `onnxruntime-lib-mingwx64` | `onnxruntime.dll` + `onnxruntime.lib` |
+## Installation
 
-Consumers resolve the matching `onnxruntime-lib-<platform>` artifact to obtain the
-runtime library and pass its location to the linker (e.g. via
-`binaries.all { linkerOpts("-L<extracted-dir>") }`), or simply ship the file next
-to the final binary where the embedded rpath finds it.
+Published to Maven Central since `1.0.0`.
+
+### Multiplatform (Kotlin/Native) project
+
+```kotlin
+// settings.gradle.kts
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+
+// module build.gradle.kts
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.enaium.onnxruntime:onnxruntime-kmp:1.0.0")
+        }
+    }
+}
+```
+
+Add the matching native runtime artifact, and pass its extracted directory to the
+Kotlin/Native linker:
+
+```kotlin
+// e.g. for linuxX64
+val libDir = project.layout.buildDirectory.dir("onnxruntime-lib") // extracted location
+
+kotlin {
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
+        binaries.all {
+            linkerOpts("-L${libDir.get().asFile.absolutePath}", "-lonnxruntime")
+        }
+    }
+}
+```
+
+At run time, ship the shared library next to the final binary — the klib embeds an
+`@loader_path` (macOS) / `$ORIGIN` (Linux) rpath that finds it there.
+
+| Platform | Artifact to resolve | Runtime file to ship |
+| --- | --- | --- |
+| macOS arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosarm64:1.0.0` | `libonnxruntime.1.dylib` |
+| macOS x64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosx64:1.0.0` | `libonnxruntime.1.23.2.dylib` |
+| Linux x64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxx64:1.0.0` | `libonnxruntime.so.1` |
+| Linux arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxarm64:1.0.0` | `libonnxruntime.so.1` |
+| Windows x64 | `cn.enaium.onnxruntime:onnxruntime-lib-mingwx64:1.0.0` | `onnxruntime.dll` |
+
+> **Note:** the klib cannot embed a dynamic library, and the build machine's library
+> path baked into the published klib does not exist on consumer machines — it is only
+> a linker warning, but the `-lonnxruntime` search still needs the `-L` flag above.
+
+### JVM only
+
+```kotlin
+// module build.gradle.kts
+dependencies {
+    implementation("cn.enaium.onnxruntime:onnxruntime-kmp-jvm:1.0.0")
+}
+```
+
+or keep `onnxruntime-kmp` in a KMP module and consume the `jvm()` target variant.
+The official `com.microsoft.onnxruntime:onnxruntime` package (with its bundled
+per-platform natives) is pulled in automatically.
+
+### Android
+
+```kotlin
+// module build.gradle.kts
+dependencies {
+    implementation("cn.enaium.onnxruntime:onnxruntime-kmp-android:1.0.0")
+}
+```
+
+The `.so` files are bundled in the official `onnxruntime-android` AAR and loaded via
+`System.loadLibrary`.
 
 ## Usage
 
@@ -45,6 +114,21 @@ fun classify(modelPath: String, pixels: FloatArray): Int {
     return logits.argMax()
 }
 ```
+
+### API overview
+
+- `createEnv(logLevel, logId): Env` — environment (owns sessions; on JVM it wraps
+  the process-global `OrtEnvironment`).
+- `createSessionOptions(): SessionOptions` — threads, graph optimization level,
+  log level, session config entries.
+- `createRunOptions(): RunOptions` — per-run termination control.
+- `createSession(env, modelPath | modelBytes, options?): Session` — loads an
+  `.onnx`/`.ort` model from a file or from memory.
+- `Session.inputNames` / `outputNames`, `Session.run(inputs, outputs?, runOptions?)`
+  returning `Map<String, Tensor>`.
+- Tensors: `FloatTensor`, `DoubleTensor`, `LongTensor`, `IntTensor`, `StringTensor`
+  with `shape`, `size`, `data`; convert with `FloatArray.toTensor(shape)` etc.
+- Errors: `OnnxRuntimeException(code, message)`.
 
 ### Kotlin features
 
