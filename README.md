@@ -20,7 +20,7 @@ libraries are published as standalone per-platform artifacts
 
 ## Installation
 
-Published to Maven Central since `1.0.0`; current version `1.28.0.1` (version scheme `<onnxruntime-version>.<revision>`).
+Published to Maven Central since `1.0.0`; current version `1.0.2` (bundles ONNX Runtime 1.28.0).
 
 ### Multiplatform (Kotlin/Native) project
 
@@ -36,7 +36,7 @@ dependencyResolutionManagement {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.enaium.onnxruntime:onnxruntime-kmp:1.28.0.1")
+            implementation("cn.enaium.onnxruntime:onnxruntime-kmp:1.0.2")
         }
     }
 }
@@ -63,11 +63,11 @@ At run time, ship the shared library next to the final binary — the klib embed
 
 | Platform | Artifact to resolve | Runtime file to ship |
 | --- | --- | --- |
-| macOS arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosarm64:1.28.0.1` | `libonnxruntime.1.dylib` |
-| macOS x64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosx64:1.28.0.1` | `libonnxruntime.1.23.2.dylib` |
-| Linux x64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxx64:1.28.0.1` | `libonnxruntime.so.1` |
-| Linux arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxarm64:1.28.0.1` | `libonnxruntime.so.1` |
-| Windows x64 | `cn.enaium.onnxruntime:onnxruntime-lib-mingwx64:1.28.0.1` | `onnxruntime.dll` |
+| macOS arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosarm64:1.0.2` | `libonnxruntime.1.dylib` |
+| macOS x64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosx64:1.0.2` | `libonnxruntime.1.23.2.dylib` |
+| Linux x64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxx64:1.0.2` | `libonnxruntime.so.1` |
+| Linux arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxarm64:1.0.2` | `libonnxruntime.so.1` |
+| Windows x64 | `cn.enaium.onnxruntime:onnxruntime-lib-mingwx64:1.0.2` | `onnxruntime.dll` |
 
 > **Note:** the klib cannot embed a dynamic library, and the build machine's library
 > path baked into the published klib does not exist on consumer machines — it is only

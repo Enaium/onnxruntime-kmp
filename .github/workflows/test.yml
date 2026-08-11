@@ -1,10 +1,8 @@
 name: Test
 
+# Manual trigger only (Actions tab -> Test -> Run workflow).
 "on":
   workflow_dispatch:
-  push:
-    branches: [main]
-  pull_request:
 
 # Builds and tests each platform on the runner that can run it. The prebuilt
 # libonnxruntime shared libraries are downloaded by the build itself, so no
