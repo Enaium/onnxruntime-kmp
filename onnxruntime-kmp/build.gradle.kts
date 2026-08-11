@@ -29,7 +29,7 @@ version = rootProject.version
 // available x86_64 build while all other targets use the latest release.
 // =========================================================================
 
-val onnxRuntimeVersion = "1.26.0"
+val onnxRuntimeVersion = "1.28.0"
 val onnxRuntimeMacosX64Version = "1.23.2"
 
 data class NativeLibSpec(

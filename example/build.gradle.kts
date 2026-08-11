@@ -89,7 +89,7 @@ kotlin {
 
 data class RuntimeLib(val targetName: String, val key: String, val version: String, val fileName: String)
 
-val onnxVersion = "1.26.0"
+val onnxVersion = "1.28.0"
 val onnxMacosX64Version = "1.23.2"
 
 val runtimeLibs = listOf(

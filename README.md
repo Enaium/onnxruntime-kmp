@@ -8,10 +8,10 @@ A single common Kotlin API in front of the two official ONNX Runtime distributio
 | --- | --- |
 | JVM (desktop) | [`com.microsoft.onnxruntime:onnxruntime`](https://central.sonatype.com/artifact/com.microsoft.onnxruntime/onnxruntime) |
 | Android | [`com.microsoft.onnxruntime:onnxruntime-android`](https://central.sonatype.com/artifact/com.microsoft.onnxruntime/onnxruntime-android) |
-| macOS arm64 | official prebuilt `libonnxruntime` 1.26.0 (osx-arm64), linked via cinterop |
+| macOS arm64 | official prebuilt `libonnxruntime` 1.28.0 (osx-arm64), linked via cinterop |
 | macOS x64 | official prebuilt `libonnxruntime` 1.23.2 (osx-x86_64, the last Intel build Microsoft shipped) |
-| Linux x64 / arm64 | official prebuilt `libonnxruntime` 1.26.0, linked via cinterop |
-| Windows x64 | official prebuilt `onnxruntime.dll` 1.26.0, linked via cinterop |
+| Linux x64 / arm64 | official prebuilt `libonnxruntime` 1.28.0, linked via cinterop |
+| Windows x64 | official prebuilt `onnxruntime.dll` 1.28.0, linked via cinterop |
 
 The Kotlin/Native klibs embed the link configuration (`@loader_path` / `$ORIGIN`
 rpath). Since a dynamic library cannot be embedded into a klib, the shared
@@ -20,7 +20,7 @@ libraries are published as standalone per-platform artifacts
 
 ## Installation
 
-Published to Maven Central since `1.0.0`.
+Published to Maven Central since `1.0.0`; current version `1.28.0.1` (version scheme `<onnxruntime-version>.<revision>`).
 
 ### Multiplatform (Kotlin/Native) project
 
@@ -36,7 +36,7 @@ dependencyResolutionManagement {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.enaium.onnxruntime:onnxruntime-kmp:1.0.0")
+            implementation("cn.enaium.onnxruntime:onnxruntime-kmp:1.28.0.1")
         }
     }
 }
@@ -63,11 +63,11 @@ At run time, ship the shared library next to the final binary — the klib embed
 
 | Platform | Artifact to resolve | Runtime file to ship |
 | --- | --- | --- |
-| macOS arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosarm64:1.0.0` | `libonnxruntime.1.dylib` |
-| macOS x64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosx64:1.0.0` | `libonnxruntime.1.23.2.dylib` |
-| Linux x64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxx64:1.0.0` | `libonnxruntime.so.1` |
-| Linux arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxarm64:1.0.0` | `libonnxruntime.so.1` |
-| Windows x64 | `cn.enaium.onnxruntime:onnxruntime-lib-mingwx64:1.0.0` | `onnxruntime.dll` |
+| macOS arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosarm64:1.28.0.1` | `libonnxruntime.1.dylib` |
+| macOS x64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosx64:1.28.0.1` | `libonnxruntime.1.23.2.dylib` |
+| Linux x64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxx64:1.28.0.1` | `libonnxruntime.so.1` |
+| Linux arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxarm64:1.28.0.1` | `libonnxruntime.so.1` |
+| Windows x64 | `cn.enaium.onnxruntime:onnxruntime-lib-mingwx64:1.28.0.1` | `onnxruntime.dll` |
 
 > **Note:** the klib cannot embed a dynamic library, and the build machine's library
 > path baked into the published klib does not exist on consumer machines — it is only

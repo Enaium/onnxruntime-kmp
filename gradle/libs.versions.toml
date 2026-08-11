@@ -1,8 +1,8 @@
 [versions]
 kotlin = "2.4.0"
 agp = "9.3.0"
-onnxruntime = "1.26.0"
-onnxruntime-android = "1.26.0"
+onnxruntime = "1.28.0"
+onnxruntime-android = "1.28.0"
 onnxruntime-macosx64 = "1.23.2"
 junit = "5.11.0"
 junit-platform = "1.11.0"

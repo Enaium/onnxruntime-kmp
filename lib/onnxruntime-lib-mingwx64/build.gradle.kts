@@ -18,7 +18,7 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-val onnxRuntimeVersion = "1.26.0"
+val onnxRuntimeVersion = "1.28.0"
 val targetName = "mingwX64"
 val platformKey = "win-x64"
 val classifier = targetName.lowercase()

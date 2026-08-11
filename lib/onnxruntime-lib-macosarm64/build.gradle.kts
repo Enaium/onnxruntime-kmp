@@ -18,7 +18,7 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-val onnxRuntimeVersion = "1.26.0"
+val onnxRuntimeVersion = "1.28.0"
 val targetName = "macosArm64"
 val platformKey = "osx-arm64"
 val classifier = targetName.lowercase()
@@ -28,7 +28,7 @@ val resourceDir = "cn/enaium/onnxruntime/lib/$platformKey"
 // versioned file and the SONAME/install-name alias are shipped so the
 // artifact is usable as a drop-in runtime library.
 val libFiles = listOf(
-        "libonnxruntime.1.26.0.dylib" to "libonnxruntime.1.26.0.dylib",
+        "libonnxruntime.1.28.0.dylib" to "libonnxruntime.1.28.0.dylib",
         "libonnxruntime.1.dylib" to "libonnxruntime.1.dylib"
 )
 

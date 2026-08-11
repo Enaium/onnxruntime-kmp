@@ -7,5 +7,7 @@ plugins {
 
 allprojects {
     group = "cn.enaium.onnxruntime"
-    version = "1.0.1"
+    // Version scheme: <onnxruntime-version>.<revision> — bump the revision
+    // for each new build against the same ONNX Runtime version.
+    version = "1.28.0.1"
 }
