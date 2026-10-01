@@ -40,9 +40,7 @@ kotlin {
 }
 
 dependencies {
-    // Consume the artifact published to the local Maven repository
-    // (run `./gradlew publishToMavenLocal` first).
-    implementation("cn.enaium.onnxruntime:onnxruntime-kmp:${rootProject.version}")
+    implementation(project(":onnxruntime-kmp"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity)

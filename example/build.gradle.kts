@@ -12,9 +12,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 // target. Runs a real MNIST CNN inference with the bundled mnist-8.onnx
 // model, and hosts the per-platform tests (commonTest).
 //
-// Consumes the artifact published to the local Maven repository; run
-//   ./gradlew publishToMavenLocal
-// from the root first (the CI workflows do exactly that).
+// Consumes the :onnxruntime-kmp project directly.
 // =========================================================================
 
 plugins {
@@ -62,8 +60,7 @@ kotlin {
     sourceSets {
         getByName("commonMain") {
             dependencies {
-                // Consume the artifact published to the local Maven repository.
-                implementation("cn.enaium.onnxruntime:onnxruntime-kmp:${rootProject.version}")
+                implementation(project(":onnxruntime-kmp"))
             }
         }
 
@@ -89,7 +86,7 @@ kotlin {
 
 data class RuntimeLib(val targetName: String, val key: String, val version: String, val fileName: String)
 
-val onnxVersion = "1.28.0"
+val onnxVersion = "1.30.0"
 val onnxMacosX64Version = "1.23.2"
 
 val runtimeLibs = listOf(

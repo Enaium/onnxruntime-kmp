@@ -8,10 +8,10 @@ A single common Kotlin API in front of the two official ONNX Runtime distributio
 | --- | --- |
 | JVM (desktop) | [`com.microsoft.onnxruntime:onnxruntime`](https://central.sonatype.com/artifact/com.microsoft.onnxruntime/onnxruntime) |
 | Android | [`com.microsoft.onnxruntime:onnxruntime-android`](https://central.sonatype.com/artifact/com.microsoft.onnxruntime/onnxruntime-android) |
-| macOS arm64 | official prebuilt `libonnxruntime` 1.28.0 (osx-arm64), linked via cinterop |
+| macOS arm64 | official prebuilt `libonnxruntime` 1.30.0 (osx-arm64), linked via cinterop |
 | macOS x64 | official prebuilt `libonnxruntime` 1.23.2 (osx-x86_64, the last Intel build Microsoft shipped) |
-| Linux x64 / arm64 | official prebuilt `libonnxruntime` 1.28.0, linked via cinterop |
-| Windows x64 | official prebuilt `onnxruntime.dll` 1.28.0, linked via cinterop |
+| Linux x64 / arm64 | official prebuilt `libonnxruntime` 1.30.0, linked via cinterop |
+| Windows x64 | official prebuilt `onnxruntime.dll` 1.30.0, linked via cinterop |
 
 The Kotlin/Native klibs embed the link configuration (`@loader_path` / `$ORIGIN`
 rpath). Since a dynamic library cannot be embedded into a klib, the shared
@@ -20,7 +20,7 @@ libraries are published as standalone per-platform artifacts
 
 ## Installation
 
-Published to Maven Central since `1.0.0`; current version `1.0.2` (bundles ONNX Runtime 1.28.0).
+Published to Maven Central since `1.0.0`; current version `1.0.2` (bundles ONNX Runtime 1.30.0).
 
 ### Multiplatform (Kotlin/Native) project
 
@@ -155,7 +155,6 @@ fun classify(modelPath: String, pixels: FloatArray): Int {
 ### Building
 
 ```bash
-./gradlew publishToMavenLocal          # publishes :onnxruntime-kmp to ~/.m2
 ./gradlew :example:run                 # JVM MNIST example
 ./gradlew :example:runMacosArm64       # native MNIST example (per host target)
 ./gradlew :example:macosArm64Test      # per-platform tests (jvmTest, linuxX64Test, ...)
