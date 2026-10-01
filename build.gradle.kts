@@ -10,5 +10,5 @@ allprojects {
     // Project version (major.minor.revision); bump the revision number for
     // each release. The bundled ONNX Runtime version is set separately in
     // gradle/libs.versions.toml and the native build scripts.
-    version = "1.0.2"
+    version = "1.0.3"
 }
