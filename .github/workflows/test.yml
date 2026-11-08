@@ -29,7 +29,7 @@ concurrency:
 jobs:
   test-macos:
     name: Test macOS ARM64
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Check out repository
         uses: actions/checkout@v6

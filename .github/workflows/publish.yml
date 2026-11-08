@@ -7,7 +7,7 @@ name: Publish
 # coordinates are immutable, so each publication is produced by exactly one
 # runner:
 #
-#   macos-14      -> :onnxruntime-kmp metadata + jvm + android + Apple
+#   macos-15      -> :onnxruntime-kmp metadata + jvm + android + Apple
 #                    klibs (macosArm64, macosX64; the macosX64 klib links
 #                    the last Intel-mac build, onnxruntime 1.23.2)
 #   ubuntu-latest -> :onnxruntime-kmp linuxX64 + linuxArm64 + mingwX64 klibs
@@ -31,7 +31,7 @@ name: Publish
 jobs:
   publish-macos:
     name: Publish macOS (metadata + jvm + android + Apple klibs + darwin libs)
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
