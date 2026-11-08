@@ -40,7 +40,7 @@ internal fun resolveModelPath(): String {
     envVar("ONNX_MODEL_PATH")?.takeIf { it.isNotBlank() }?.let { return it }
     val candidates = listOf(
         "model/mnist-8.onnx",
-        "example/model/mnist-8.onnx",
+        "examples/example/model/mnist-8.onnx",
         "build/model/mnist-8.onnx",
         "../model/mnist-8.onnx",
     )

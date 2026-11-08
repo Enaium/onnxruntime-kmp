@@ -86,7 +86,7 @@ kotlin {
 
 data class RuntimeLib(val targetName: String, val key: String, val version: String, val fileName: String)
 
-val onnxVersion = "1.30.0"
+val onnxVersion = "1.31.1"
 val onnxMacosX64Version = "1.23.2"
 
 val runtimeLibs = listOf(
@@ -97,7 +97,7 @@ val runtimeLibs = listOf(
     RuntimeLib("mingwX64", "win-x64", onnxVersion, "onnxruntime.dll"),
 ).associateBy { it.targetName }
 
-val modelPath = rootProject.projectDir.resolve("example/model/mnist-8.onnx")
+val modelPath = rootProject.projectDir.resolve("examples/example/model/mnist-8.onnx")
 val nativeRoot = rootProject.projectDir.resolve("native")
 
 // Copies the matching libonnxruntime shared library next to the binary so the

@@ -17,8 +17,12 @@ dependencyResolutionManagement {
 rootProject.name = "onnxruntime-kmp"
 
 include(":onnxruntime-kmp")
+
+// The examples live under examples/ but keep their original project paths.
 include(":example")
+project(":example").projectDir = file("examples/example")
 include(":example-android")
+project(":example-android").projectDir = file("examples/example-android")
 
 // Per-platform artifacts that ship the prebuilt libonnxruntime shared
 // library (the klib cannot embed dynamic libraries).

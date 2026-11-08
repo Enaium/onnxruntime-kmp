@@ -8,10 +8,10 @@ A single common Kotlin API in front of the two official ONNX Runtime distributio
 | --- | --- |
 | JVM (desktop) | [`com.microsoft.onnxruntime:onnxruntime`](https://central.sonatype.com/artifact/com.microsoft.onnxruntime/onnxruntime) |
 | Android | [`com.microsoft.onnxruntime:onnxruntime-android`](https://central.sonatype.com/artifact/com.microsoft.onnxruntime/onnxruntime-android) |
-| macOS arm64 | official prebuilt `libonnxruntime` 1.30.0 (osx-arm64), linked via cinterop |
+| macOS arm64 | official prebuilt `libonnxruntime` 1.31.1 (osx-arm64), linked via cinterop |
 | macOS x64 | official prebuilt `libonnxruntime` 1.23.2 (osx-x86_64, the last Intel build Microsoft shipped) |
-| Linux x64 / arm64 | official prebuilt `libonnxruntime` 1.30.0, linked via cinterop |
-| Windows x64 | official prebuilt `onnxruntime.dll` 1.30.0, linked via cinterop |
+| Linux x64 / arm64 | official prebuilt `libonnxruntime` 1.31.1, linked via cinterop |
+| Windows x64 | official prebuilt `onnxruntime.dll` 1.31.1, linked via cinterop |
 
 The Kotlin/Native klibs embed the link configuration (`@loader_path` / `$ORIGIN`
 rpath). Since a dynamic library cannot be embedded into a klib, the shared
@@ -20,7 +20,7 @@ libraries are published as standalone per-platform artifacts
 
 ## Installation
 
-Published to Maven Central since `1.0.0`; current version `1.0.3` (bundles ONNX Runtime 1.30.0).
+Published to Maven Central since `1.0.0`; current version `1.31.1.1` (bundles ONNX Runtime 1.31.1).
 
 ### Multiplatform (Kotlin/Native) project
 
@@ -36,7 +36,7 @@ dependencyResolutionManagement {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.enaium.onnxruntime:onnxruntime-kmp:1.0.3")
+            implementation("cn.enaium.onnxruntime:onnxruntime-kmp:1.31.1.1")
         }
     }
 }
@@ -63,11 +63,11 @@ At run time, ship the shared library next to the final binary — the klib embed
 
 | Platform | Artifact to resolve | Runtime file to ship |
 | --- | --- | --- |
-| macOS arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosarm64:1.0.3` | `libonnxruntime.1.dylib` |
-| macOS x64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosx64:1.0.3` | `libonnxruntime.1.23.2.dylib` |
-| Linux x64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxx64:1.0.3` | `libonnxruntime.so.1` |
-| Linux arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxarm64:1.0.3` | `libonnxruntime.so.1` |
-| Windows x64 | `cn.enaium.onnxruntime:onnxruntime-lib-mingwx64:1.0.3` | `onnxruntime.dll` |
+| macOS arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosarm64:1.31.1.1` | `libonnxruntime.1.dylib` |
+| macOS x64 | `cn.enaium.onnxruntime:onnxruntime-lib-macosx64:1.31.1.1` | `libonnxruntime.1.23.2.dylib` |
+| Linux x64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxx64:1.31.1.1` | `libonnxruntime.so.1` |
+| Linux arm64 | `cn.enaium.onnxruntime:onnxruntime-lib-linuxarm64:1.31.1.1` | `libonnxruntime.so.1` |
+| Windows x64 | `cn.enaium.onnxruntime:onnxruntime-lib-mingwx64:1.31.1.1` | `onnxruntime.dll` |
 
 > **Note:** the klib cannot embed a dynamic library, and the build machine's library
 > path baked into the published klib does not exist on consumer machines — it is only
@@ -78,7 +78,7 @@ At run time, ship the shared library next to the final binary — the klib embed
 ```kotlin
 // module build.gradle.kts
 dependencies {
-    implementation("cn.enaium.onnxruntime:onnxruntime-kmp-jvm:1.0.3")
+    implementation("cn.enaium.onnxruntime:onnxruntime-kmp-jvm:1.31.1.1")
 }
 ```
 
@@ -91,7 +91,7 @@ per-platform natives) is pulled in automatically.
 ```kotlin
 // module build.gradle.kts
 dependencies {
-    implementation("cn.enaium.onnxruntime:onnxruntime-kmp-android:1.0.3")
+    implementation("cn.enaium.onnxruntime:onnxruntime-kmp-android:1.31.1.1")
 }
 ```
 
@@ -147,9 +147,9 @@ fun classify(modelPath: String, pixels: FloatArray): Int {
   GitHub releases by the build into `native/` (git-ignored).
 - `onnxruntime-lib-<platform>` – per-platform artifacts that package the prebuilt
   shared library for publication (see the table above).
-- `example` – desktop example + tests: JVM and Kotlin/Native executables running real
+- `examples/example` – desktop example + tests: JVM and Kotlin/Native executables running real
   MNIST inference with the bundled `model/mnist-8.onnx` (committed).
-- `example-android` – Android example app + instrumented test.
+- `examples/example-android` – Android example app + instrumented test.
 - `.github/workflows/test.yml` / `publish.yml` – CI and Maven Central publishing.
 
 ### Building

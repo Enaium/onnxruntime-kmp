@@ -7,8 +7,9 @@ plugins {
 
 allprojects {
     group = "cn.enaium.onnxruntime"
-    // Project version (major.minor.revision); bump the revision number for
-    // each release. The bundled ONNX Runtime version is set separately in
-    // gradle/libs.versions.toml and the native build scripts.
-    version = "1.0.3"
+    // Version scheme: <onnxruntime-version>.<revision>; bump the revision for
+    // each build against the same ONNX Runtime version. The bundled ONNX
+    // Runtime version is also set in gradle/libs.versions.toml and the native
+    // build scripts.
+    version = "1.31.1.1"
 }
